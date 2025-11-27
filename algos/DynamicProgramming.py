@@ -28,7 +28,7 @@ class DynamicProgramming:
     def __call__(self):
         done = False
         while not done:
-            s, r, done, _, _ = env.step(int(np.argmax(self.policy_array[self.current_state])))
+            s, r, done, _, _ = self.env.step(int(np.argmax(self.policy_array[self.current_state])))
             
             print("self.policy_array[self.current_state]:     " + str(self.policy_array[self.current_state]))
 
@@ -142,6 +142,19 @@ if __name__ == "__main__":
     # print("policy array")
     # print(policy_array)
     # print(env.P)
-    time.sleep(50)
+
+
+    success_count = 0
+    for episode in range(100):
+        state = env.reset()[0]
+        done = False
+        while not done:
+            action = np.argmax(algorithm.policy_array[state])
+            state, reward, terminated, truncated, _ = env.step(action)
+            done = terminated or truncated
+        if reward == 1:
+            success_count += 1
+
+        print(f"Success rate: {success_count}/100 = {success_count}%")
     env.close()
 
