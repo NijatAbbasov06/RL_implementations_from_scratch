@@ -19,7 +19,7 @@ class DynamicProgramming:
         self.P = self.env.P
         self.reset()
         delta_change = 100
-        while delta_change > 0.01:
+        while delta_change > 0.0000001:
             delta_change = self.policy_evaluation()
             # print(delta_change)
         self.policy_improvement()
@@ -28,10 +28,14 @@ class DynamicProgramming:
     def __call__(self):
         done = False
         while not done:
-            s, r, done, _, _ = env.step(int(max(self.policy_array[self.current_state])))
-            self.current_state = s
-            time.sleep(1)
+            s, r, done, _, _ = env.step(int(np.argmax(self.policy_array[self.current_state])))
+            
+            print("self.policy_array[self.current_state]:     " + str(self.policy_array[self.current_state]))
 
+            self.current_state = s
+            print("self.current_state:   " + str(self.current_state))
+            time.sleep(1)
+        self.print_value_grid()
         return self.policy_array
     
 
@@ -72,10 +76,14 @@ class DynamicProgramming:
                 for transition in self.P[s][a]) 
                 for a in self.action_array
             ]
+            if s == 8:
+                print(s)
+                print(action_values)
 
 
 
             best_action = np.argmax(action_values)
+            print(best_action)
             for a in self.action_array:
                 if a == best_action:
                     self.policy_array[s][a] = 1
@@ -104,26 +112,36 @@ class DynamicProgramming:
     
     def compute_bootstrapped_value(self, transition):
         # print(transition[0] * (transition[2] + self.gamma * self.value_array[transition[1]]))
+
         return transition[0] * (transition[2] + self.gamma * self.value_array[transition[1]])
     
-
+    def print_value_grid(self):
+        """Print values in a grid format"""
+        size = int(np.sqrt(self.observation_space.n))
+        grid = self.value_array.reshape((size, size))
+        print("Value Grid:")
+        for row in grid:
+            print(" ".join(f"{val:.3f}" for val in row))
 
 
         
 if __name__ == "__main__":
     env = gym.make(
     'FrozenLake-v1',
-    desc=None,
-    map_name="4x4",
+    desc= None,
+    map_name = "8x8",
     is_slippery=True,
     render_mode = "human"
     )
+
 
     print("running the algo")
     
     algorithm = DynamicProgramming(env)
     policy_array = algorithm()
-    print(policy_array)
-    
+    # print("policy array")
+    # print(policy_array)
+    # print(env.P)
+    time.sleep(50)
     env.close()
 
