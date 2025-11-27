@@ -100,7 +100,7 @@ class DynamicProgramming:
         self.value_array_size = self.observation_space.n
         self.action_array_size = self.action_space.n
         self.value_array = np.zeros(self.value_array_size)
-        self.action_array = np.array([0, 1, 2, 3])
+        self.action_array = np.arange(self.action_space.n)
         
         
         self.policy_array = np.zeros((self.value_array_size, self.action_array_size))
@@ -145,7 +145,7 @@ if __name__ == "__main__":
 
 
     success_count = 0
-    for episode in range(100):
+    for eisode in range(1000):
         state = env.reset()[0]
         done = False
         while not done:
