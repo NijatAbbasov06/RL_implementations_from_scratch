@@ -58,7 +58,7 @@ class DynamicProgramming:
             
             best_value = action_values[best_action]
             # print(best_value)
-            delta_change = max(delta_change, (best_value - self.value_array[s]) )
+            delta_change = max(delta_change, abs(best_value - self.value_array[s]) )
 
 
             self.value_array[s] = best_value
@@ -129,8 +129,8 @@ if __name__ == "__main__":
     env = gym.make(
     'FrozenLake-v1',
     desc= None,
-    map_name = "8x8",
-    is_slippery=True,
+    map_name = "4x4",
+    is_slippery=False,
     render_mode = "human"
     )
 
@@ -155,6 +155,6 @@ if __name__ == "__main__":
         if reward == 1:
             success_count += 1
 
-        print(f"Success rate: {success_count}/100 = {success_count}%")
+        print(f"Success rate: {success_count}/1000 = {success_count/10}%")
     env.close()
 

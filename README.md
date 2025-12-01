@@ -1,5 +1,5 @@
 # RL_implementations_from_scratch
 
 
-DynamicProgramming - 62 percent success rate
+DynamicProgramming - 64.7 percent success rate
 MonteCarlo - 
