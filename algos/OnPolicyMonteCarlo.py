@@ -1,6 +1,12 @@
+import sys
+
+sys.path.insert(1, "../")
+
 import gymnasium as gym
 import numpy as np
 import argparse
+import time
+from utils.wrapper import JupyterRender
 
 
 class ReplayBuffer:
@@ -115,7 +121,7 @@ class MonteCarlo:
         self.gamma = gamma
         self.env = env
         
-        
+        self.episode_count = args.episode_count
         self.obs_dim = self.env.observation_space.shape[0] if self.env.observation_space.shape else 1
         self.act_dim = self.env.action_space.shape[0] if self.env.action_space.shape else 1
         self.ReplayBuffer = ReplayBuffer(
@@ -135,13 +141,15 @@ class MonteCarlo:
         self.policy_array = np.zeros((self.env.observation_space.n, self.env.action_space.n))
         # self.return_array = np.zeros(self.env.observation_space.n, dtype= np.float32)
         
-
+   
         
         delta_change = 200
         for s in range(self.policy_array.shape[0]):
             for a in range(self.policy_array.shape[1]):
                 self.policy_array[s][a] = 1/ self.policy_array.shape[1]
-        while delta_change>0:
+
+        
+        for i in range(self.episode_count):
             self.o,  _ = self.env.reset()
             
             done = False
@@ -152,7 +160,7 @@ class MonteCarlo:
                 if np.random.random() < 1 - self.epsilon:
                     a = np.argmax(self.policy_array[self.o])
                 else:
-                    a = np.random.choice(self.action_array)
+                    a = self.env.action_space.sample()
                 
                 # print(self.o)
                 # print(self.policy_array[self.o])
@@ -183,6 +191,22 @@ class MonteCarlo:
             delta_change = self.policy_evaluation()
       
             self.policy_improvement()
+
+
+
+    def __call__(self):
+        done = False
+        while not done:
+            s, r, done, _, _ = self.env.step(int(np.argmax(self.policy_array[self.current_state])))
+            
+            print("self.policy_array[self.current_state]:     " + str(self.policy_array[self.current_state]))
+
+            self.current_state = s
+            print("self.current_state:   " + str(self.current_state))
+            time.sleep(1)
+        self.print_value_grid()
+        return self.policy_array
+    
 
     def policy_evaluation(self):
         self.G = 0
@@ -310,6 +334,12 @@ if __name__ == "__main__" :
                         action= "store_true",
                         help = "Test if the buffer is setup properly")
     
+    parser.add_argument( "--episode_count",
+                        type= int,
+                        default= 100,
+                        help = "Episode count to train the model")
+    
+
     
     args = parser.parse_args()
 
@@ -321,7 +351,22 @@ if __name__ == "__main__" :
         is_slippery=False,
         render_mode = "human"
         )
-
-    algorithm = MonteCarlo(env, args, step_size = 0.01, gamma = 0.99, epsilon = 0.2)
-
     
+    env = JupyterRender(env)
+    algorithm = MonteCarlo(env, args, step_size = 0.01, gamma = 0.99, epsilon = 0.1)
+
+    policy_array = algorithm()
+
+    success_count = 0
+    for eisode in range(1000):
+        state = env.reset()[0]
+        done = False
+        while not done:
+            action = np.argmax(algorithm.policy_array[state])
+            state, reward, terminated, truncated, _ = env.step(action)
+            done = terminated or truncated
+        if reward == 1:
+            success_count += 1
+
+        print(f"Success rate: {success_count}/1000 = {success_count/10}%")
+    env.close()
