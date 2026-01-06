@@ -1,5 +1,5 @@
 import gymnasium as gym
-# from IPython import display
+from IPython import display
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
@@ -60,11 +60,11 @@ class JupyterRender(gym.Wrapper):
         for ax in ax_list:
             ax.tick_params(bottom=False, left=False, labelbottom=False, labelleft=False)
             
-        # display.display(plt.gcf())
-        # display.clear_output(wait=True)
+        display.display(plt.gcf())
+        display.clear_output(wait=True)
             
-        plt.draw()  # Draw the figure
-        plt.pause(3)
+        # plt.draw()  # Draw the figure
+        # plt.pause(0.1)
         plt.close()
         
     

@@ -55,10 +55,10 @@ class MonteCarloPrediction:
     def __call__(self):
         self.env.render(v=self.v_values, policy=self.policy)
         time.sleep(0.4)
+    
 
 
-
-        pass
+      
 
     def loop(self):
         for episode in range(self.episode_count):
@@ -77,7 +77,7 @@ class MonteCarloPrediction:
         self.trajectory = []
         done = False
         while not done:
-            o2, r, done, _, _ = env.step(self.policy[o])
+            o2, r, done, _, _ = self.env.step(self.policy[o])
             self.trajectory.append((o, r))
             o = o2
         
